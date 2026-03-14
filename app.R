@@ -5,13 +5,13 @@ library(readr)
 library(lubridate)
 library(bslib)
 
-
 # Load data
 mars_data <- read_csv("data/mars-weather.csv", show_col_types = FALSE) %>%
   mutate(
     terrestrial_date = as.Date(terrestrial_date)
   )
 
+# Defensive check
 required_cols <- c(
   "terrestrial_date",
   "month",
@@ -30,12 +30,9 @@ if (length(missing_cols) > 0) {
   )
 }
 
-
-# Month choices
+# Keep month logic simple and close to your Python app
 month_choices <- c("All", sort(unique(mars_data$month)))
 
-
-# UI
 ui <- page_fluid(
   theme = bs_theme(
     version = 5,
@@ -96,7 +93,6 @@ ui <- page_fluid(
     "))
   ),
   
-  
   div(
     class = "main-bg",
     
@@ -135,13 +131,13 @@ ui <- page_fluid(
         div(
           class = "kpi-card",
           div(class = "kpi-label", "Average Minimum Temperature"),
-          textOutput("avg_min_temp", container = div, class = "kpi-value")
+          div(class = "kpi-value", textOutput("avg_min_temp"))
         ),
         
         div(
           class = "kpi-card",
           div(class = "kpi-label", "Average Maximum Temperature"),
-          textOutput("avg_max_temp", container = div, class = "kpi-value")
+          div(class = "kpi-value", textOutput("avg_max_temp"))
         )
       ),
       
@@ -158,11 +154,9 @@ ui <- page_fluid(
   )
 )
 
-
-# Server
 server <- function(input, output, session) {
   
-  # Reactive filtered dataframe
+  # Reactive filtered dataframe; same idea as your Python filtered_df()
   filtered_data <- reactive({
     df <- mars_data
     
@@ -181,7 +175,7 @@ server <- function(input, output, session) {
     df
   })
   
-  # KPI: average minimum temperature
+  # KPI 1
   output$avg_min_temp <- renderText({
     df <- filtered_data()
     
@@ -192,7 +186,7 @@ server <- function(input, output, session) {
     paste0(round(mean(df$min_temp, na.rm = TRUE), 2), " °C")
   })
   
-  # KPI: average maximum temperature
+  # KPI 2
   output$avg_max_temp <- renderText({
     df <- filtered_data()
     
@@ -203,7 +197,7 @@ server <- function(input, output, session) {
     paste0(round(mean(df$max_temp, na.rm = TRUE), 2), " °C")
   })
   
-  # Plot 1: temperature trend over time
+  # Similar to your temp_series logic
   output$temp_trend_plot <- renderPlot({
     df <- filtered_data()
     
@@ -211,15 +205,14 @@ server <- function(input, output, session) {
       need(nrow(df) > 0, "No data available for the selected filters.")
     )
     
-    df_long_min <- df %>%
-      select(terrestrial_date, value = min_temp) %>%
-      mutate(type = "Minimum Temperature")
-    
-    df_long_max <- df %>%
-      select(terrestrial_date, value = max_temp) %>%
-      mutate(type = "Maximum Temperature")
-    
-    plot_df <- bind_rows(df_long_min, df_long_max)
+    plot_df <- bind_rows(
+      df %>%
+        select(terrestrial_date, value = min_temp) %>%
+        mutate(type = "Minimum Temperature"),
+      df %>%
+        select(terrestrial_date, value = max_temp) %>%
+        mutate(type = "Maximum Temperature")
+    )
     
     ggplot(plot_df, aes(x = terrestrial_date, y = value, color = type)) +
       geom_line(linewidth = 0.8, alpha = 0.9) +
@@ -236,8 +229,7 @@ server <- function(input, output, session) {
       )
   })
   
-  
-  # Plot 2: pressure vs max temperature
+  # Similar to your pressure_max_temp_plot logic
   output$pressure_scatter_plot <- renderPlot({
     df <- filtered_data()
     
@@ -249,7 +241,7 @@ server <- function(input, output, session) {
       geom_point(alpha = 0.7, size = 2) +
       labs(
         title = "Air Pressure vs Maximum Temperature",
-        x = "Air Pressure",
+        x = "Air Pressure (Pa)",
         y = "Maximum Temperature (°C)"
       ) +
       theme_minimal(base_size = 13) +
@@ -260,7 +252,3 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui = ui, server = server)
-  
-  
-  
-
