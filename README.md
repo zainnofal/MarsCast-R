@@ -102,6 +102,7 @@ The dashboard prioritizes **clarity, interpretability, and operational relevance
 ├── LICENSE
 └── www/
     └── mars_bg.png
+    └── demo.gif
 ```
 
 ## For Contributors
