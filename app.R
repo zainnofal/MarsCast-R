@@ -237,6 +237,30 @@ server <- function(input, output, session) {
   })
   
   
+  # Plot 2: pressure vs max temperature
+  output$pressure_scatter_plot <- renderPlot({
+    df <- filtered_data()
+    
+    validate(
+      need(nrow(df) > 0, "No data available for the selected filters.")
+    )
+    
+    ggplot(df, aes(x = pressure, y = max_temp)) +
+      geom_point(alpha = 0.7, size = 2) +
+      labs(
+        title = "Air Pressure vs Maximum Temperature",
+        x = "Air Pressure",
+        y = "Maximum Temperature (°C)"
+      ) +
+      theme_minimal(base_size = 13) +
+      theme(
+        plot.title = element_text(face = "bold")
+      )
+  })
+}
+
+shinyApp(ui = ui, server = server)
+  
   
   
 
