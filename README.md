@@ -9,6 +9,10 @@ It explores historical Martian weather data collected by NASA's *Curiosity Rover
 
 ---
 
+## Demo
+
+![MarsCast demo](www/demo.gif)
+
 ## Overview
 
 This repository contains a simplified Mars weather dashboard built in **Shiny for R**.  
