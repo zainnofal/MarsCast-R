@@ -159,3 +159,84 @@ ui <- page_fluid(
 )
 
 
+# Server
+server <- function(input, output, session) {
+  
+  # Reactive filtered dataframe
+  filtered_data <- reactive({
+    df <- mars_data
+    
+    if (!is.null(input$month) && input$month != "All") {
+      df <- df %>% filter(month == input$month)
+    }
+    
+    if (!is.null(input$date_range) && length(input$date_range) == 2) {
+      df <- df %>%
+        filter(
+          terrestrial_date >= as.Date(input$date_range[1]),
+          terrestrial_date <= as.Date(input$date_range[2])
+        )
+    }
+    
+    df
+  })
+  
+  # KPI: average minimum temperature
+  output$avg_min_temp <- renderText({
+    df <- filtered_data()
+    
+    if (nrow(df) == 0 || all(is.na(df$min_temp))) {
+      return("N/A")
+    }
+    
+    paste0(round(mean(df$min_temp, na.rm = TRUE), 2), " °C")
+  })
+  
+  # KPI: average maximum temperature
+  output$avg_max_temp <- renderText({
+    df <- filtered_data()
+    
+    if (nrow(df) == 0 || all(is.na(df$max_temp))) {
+      return("N/A")
+    }
+    
+    paste0(round(mean(df$max_temp, na.rm = TRUE), 2), " °C")
+  })
+  
+  # Plot 1: temperature trend over time
+  output$temp_trend_plot <- renderPlot({
+    df <- filtered_data()
+    
+    validate(
+      need(nrow(df) > 0, "No data available for the selected filters.")
+    )
+    
+    df_long_min <- df %>%
+      select(terrestrial_date, value = min_temp) %>%
+      mutate(type = "Minimum Temperature")
+    
+    df_long_max <- df %>%
+      select(terrestrial_date, value = max_temp) %>%
+      mutate(type = "Maximum Temperature")
+    
+    plot_df <- bind_rows(df_long_min, df_long_max)
+    
+    ggplot(plot_df, aes(x = terrestrial_date, y = value, color = type)) +
+      geom_line(linewidth = 0.8, alpha = 0.9) +
+      labs(
+        title = "Temperature Trends Over Time",
+        x = "Terrestrial Date",
+        y = "Temperature (°C)",
+        color = NULL
+      ) +
+      theme_minimal(base_size = 13) +
+      theme(
+        plot.title = element_text(face = "bold"),
+        legend.position = "top"
+      )
+  })
+  
+  
+  
+  
+
