@@ -100,6 +100,7 @@ The dashboard prioritizes **clarity, interpretability, and operational relevance
 ├── data/
 │   └── mars-weather.csv
 ├── LICENSE
+├── manifest.json
 └── www/
     └── mars_bg.png
     └── demo.gif
