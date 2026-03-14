@@ -5,7 +5,7 @@ It explores historical Martian weather data collected by NASA's *Curiosity Rover
 
 ## Deployed App
 
-- Deployed Dashboard: 
+- Deployed Dashboard: https://019cebea-0c55-1739-0cb5-dd0f2d75405d.share.connect.posit.cloud
 
 ---
 
