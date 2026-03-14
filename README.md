@@ -1,4 +1,4 @@
-# MarsCast 🪐
+# Mars Weather Dashboard - R 🪐
 
 MarsCast is an individual **Shiny for R** reimplementation of our original Mars weather dashboard project.  
 It explores historical Martian weather data collected by NASA's *Curiosity Rover* and provides an interactive interface for filtering and visualizing temperature and pressure patterns on Mars.
